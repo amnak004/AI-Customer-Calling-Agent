@@ -1,0 +1,38 @@
+# AI Customer Calling Agent - Project Requirements
+
+**Student Name:** Amna Ahmed  
+**Registration Number:** L1F25PACS0019
+
+## 1. Project Objective
+To develop a browser-based AI voice assistant that handles basic customer-service queries through simulated voice conversations.
+
+## 2. Target Users
+Customers who need quick answers to common business and order-related questions.
+
+## 3. Core Features
+1. Business hours inquiries.
+2. Order status inquiries using sample order data.
+3. Human-agent assistance requests.
+4. FAQ-based responses using approved information.
+5. Speech-to-text and text-to-speech where supported.
+6. Conversation transcript and session history.
+7. Fallback responses for unclear or unsupported queries.
+8. Session logging using SQLite.
+
+## 4. Technology Stack
+- Frontend: React, HTML, CSS, JavaScript
+- Backend: Python, FastAPI
+- Database: SQLite
+- Speech Processing: Browser speech recognition and speech synthesis
+- AI: Rule-based intent detection initially, with optional LLM API integration
+- Version Control: Git and GitHub
+
+## 5. Project Limitations
+- No real telephone calls or telephone network integration.
+- No real customer information or live order-system integration.
+- Order status will be retrieved from sample data.
+- Human-agent transfer will be simulated within the application.
+- Speech features will depend on browser support and permissions.
+
+## 6. Success Criteria
+The prototype should identify the three supported intents, return appropriate responses, handle unsupported queries safely, provide voice interaction where supported, and save session records in SQLite.
