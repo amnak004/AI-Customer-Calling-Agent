@@ -1,0 +1,52 @@
+﻿[
+    {
+        "question":  "What are your business hours?",
+        "answer":  "Our business hours are Monday to Saturday, from 9 AM to 6 PM.",
+        "intent":  "business_hours"
+    },
+    {
+        "question":  "Are you open on Sunday?",
+        "answer":  "We are closed on Sundays.",
+        "intent":  "business_hours"
+    },
+    {
+        "question":  "How can I check my order status?",
+        "answer":  "Please provide your order ID so I can check its status.",
+        "intent":  "order_status"
+    },
+    {
+        "question":  "How can I contact customer support?",
+        "answer":  "I can help with common questions or direct your request to a human agent.",
+        "intent":  "human_agent"
+    },
+    {
+        "question":  "Can I speak to a human agent?",
+        "answer":  "I will register your request for assistance from a human agent.",
+        "intent":  "human_agent"
+    },
+    {
+        "question":  "What if you cannot answer my question?",
+        "answer":  "I cannot confirm that information. I can register a request for human assistance.",
+        "intent":  "fallback"
+    },
+    {
+        "question":  "Can you tell me my order status?",
+        "answer":  "Please share your order ID, such as QC1001.",
+        "intent":  "order_status"
+    },
+    {
+        "question":  "Can I get information not listed in your FAQs?",
+        "answer":  "I can only provide verified information available in my knowledge base.",
+        "intent":  "fallback"
+    },
+    {
+        "question":  "What is QuickCart?",
+        "answer":  "QuickCart is a sample online store used to demonstrate this customer-service assistant.",
+        "intent":  "general_faq"
+    },
+    {
+        "question":  "Do you provide support on Sundays?",
+        "answer":  "Our regular business hours do not include Sunday.",
+        "intent":  "business_hours"
+    }
+]

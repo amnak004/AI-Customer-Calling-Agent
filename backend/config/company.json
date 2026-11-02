@@ -1,0 +1,18 @@
+﻿{
+  "company_id": "quickcart",
+  "company_name": "QuickCart",
+  "business_type": "ecommerce",
+  "knowledge_base": "data/companies/quickcart",
+  "features": {
+    "order_tracking": true,
+    "human_escalation": true,
+    "business_hours": true,
+    "faq_support": true
+  },
+  "ai_settings": {
+    "primary_provider": "gemini",
+    "secondary_provider": "groq",
+    "max_output_tokens": 250,
+    "temperature": 0.2
+  }
+}
