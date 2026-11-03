@@ -9,14 +9,12 @@ from pydantic import BaseModel
 
 try:
     from backend.services.database import save_conversation
+    from backend.services.rag_service import retrieve_faq
+    from backend.services.ai_provider import generate_response
 except ModuleNotFoundError:
     from services.database import save_conversation
-
-# Support both: uvicorn backend.main:app and running from backend folder
-try:
-    from backend.services.rag_service import retrieve_faq
-except ModuleNotFoundError:
     from services.rag_service import retrieve_faq
+    from services.ai_provider import generate_response
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,11 +29,13 @@ KNOWLEDGE_BASE = BASE_DIR / CONFIG["knowledge_base"]
 FAQ_FILE = KNOWLEDGE_BASE / "faqs.json"
 BUSINESS_FILE = KNOWLEDGE_BASE / "business.json"
 
+AI_SETTINGS = CONFIG.get("ai_settings", {})
+
 
 app = FastAPI(
     title="AI Customer Calling Agent",
     description="Configurable AI customer service assistant",
-    version="2.0.0"
+    version="2.1.0"
 )
 
 app.add_middleware(
@@ -68,7 +68,6 @@ def load_business():
 
 
 def load_orders():
-    # Order records remain separate from the RAG knowledge base
     data = load_json(LEGACY_DATA_FILE)
     return data.get("sample_orders", [])
 
@@ -105,7 +104,7 @@ def get_response(message: str):
     text = message.lower().strip()
     intent = detect_intent(message)
 
-    # 1. Order tracking: traditional lookup
+    # 1. Order tracking: traditional database lookup
     if intent == "order_status":
         match = re.search(r"\bQC\d{4}\b", message, re.IGNORECASE)
 
@@ -144,7 +143,7 @@ def get_response(message: str):
             "source": "rule_based"
         }
 
-    # 3. Business hours: verified company configuration
+    # 3. Business hours: company configuration
     if intent == "business_hours":
         business = load_business()
 
@@ -163,21 +162,51 @@ def get_response(message: str):
             "source": "business_configuration"
         }
 
-    # 4. General questions: semantic RAG retrieval
+    # 4. General questions: retrieve verified FAQ using RAG
     results = retrieve_faq(message, top_k=3, threshold=0.35)
 
     if results:
         best_match = results[0]
 
+        # Only verified retrieved FAQ content is sent to the AI.
+        context = (
+            f"FAQ question: {best_match['question']}\n"
+            f"Verified answer: {best_match['answer']}"
+        )
+
+        # 5. Generate a natural-language response using Gemini/Groq
+        try:
+            ai_result = generate_response(
+                question=message,
+                context=context,
+                ai_settings=AI_SETTINGS
+            )
+
+            if ai_result.get("response"):
+                return {
+                    "intent": best_match["intent"],
+                    "response": ai_result["response"],
+                    "source": "rag_ai",
+                    "provider": ai_result["provider"],
+                    "input_tokens": ai_result["input_tokens"],
+                    "output_tokens": ai_result["output_tokens"],
+                    "matched_question": best_match["question"],
+                    "similarity": round(best_match["similarity"], 3)
+                }
+
+        except Exception as error:
+            print(f"AI generation failed: {type(error).__name__}")
+
+        # 6. If both AI providers fail, use the original FAQ answer
         return {
             "intent": best_match["intent"],
             "response": best_match["answer"],
-            "source": "rag",
+            "source": "rag_fallback",
             "matched_question": best_match["question"],
             "similarity": round(best_match["similarity"], 3)
         }
 
-    # 5. No verified information found
+    # 7. No verified information found: do not call an AI provider
     return {
         "intent": "fallback",
         "response": (
@@ -231,7 +260,7 @@ def chat(request: ChatRequest):
 
     result = get_response(request.message)
 
-    # Automatically save every conversation
+    # Save every conversation and actual AI token usage
     try:
         save_conversation(
             customer_message=request.message,
