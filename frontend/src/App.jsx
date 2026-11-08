@@ -24,8 +24,18 @@ function App() {
     localStorage.setItem("quickcart-theme", theme);
   }, [theme]);
 
+  const isInitialRender = useRef(true);
+
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   }, [messages, loading]);
 
   const hasUserMessage = messages.some((item) => item.role === "user");
