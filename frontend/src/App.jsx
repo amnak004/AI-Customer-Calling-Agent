@@ -1,3 +1,4 @@
+﻿import { API_BASE_URL } from "./config";
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
@@ -33,91 +34,123 @@ function App() {
     setTheme((previous) => (previous === "light" ? "dark" : "light"));
   }
 
-  function startVoiceInput() {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
-      alert("Speech recognition is not supported. Please use Chrome.");
-      return;
-    }
+function startVoiceInput() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-    if (listening) {
-      recognitionRef.current?.stop();
-      setListening(false);
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-
-    recognition.lang = "en-US";
-    recognition.continuous = false;
-    recognition.interimResults = false;
-
-    recognition.onstart = () => setListening(true);
-
-    recognition.onresult = (event) => {
-      setMessage(event.results[0][0].transcript);
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
-      setListening(false);
-    };
-
-    recognition.onend = () => setListening(false);
-
-    recognitionRef.current = recognition;
-    recognition.start();
+  if (!SpeechRecognition) {
+    alert("Speech recognition is not supported. Please use Chrome.");
+    return;
   }
 
-  async function sendMessage(event) {
-    event.preventDefault();
+  if (listening) {
+    recognitionRef.current?.stop();
+    setListening(false);
+    return;
+  }
 
-    const userMessage = message.trim();
-    if (!userMessage || loading) return;
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    setListening(true);
+  };
+
+  recognition.onresult = (event) => {
+    setMessage(event.results[0][0].transcript);
+  };
+
+  recognition.onerror = (event) => {
+    console.error("Speech recognition error:", event.error);
+    setListening(false);
+  };
+
+  recognition.onend = () => {
+    setListening(false);
+  };
+
+  recognitionRef.current = recognition;
+  recognition.start();
+}
+
+function speakResponse(text) {
+  if (!("speechSynthesis" in window)) {
+    alert("Voice output is not supported in this browser.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "en-US";
+  speech.rate = 1;
+
+  window.speechSynthesis.speak(speech);
+}
+
+
+
+async function sendMessage(event) {
+  event.preventDefault();
+
+  const userMessage = message.trim();
+  if (!userMessage || loading) return;
+
+  setMessages((previous) => [
+    ...previous,
+    { role: "user", text: userMessage },
+  ]);
+
+  setMessage("");
+  setLoading(true);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ message: userMessage }),
+      signal: controller.signal,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Something went wrong.");
+    }
 
     setMessages((previous) => [
       ...previous,
-      { role: "user", text: userMessage },
+      { role: "assistant", text: data.response },
     ]);
 
-    setMessage("");
-    setLoading(true);
+  } catch (error) {
+    console.error("Chat error:", error);
 
-    try {
-      const response = await fetch("http://127.0.0.1:8000/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: userMessage }),
-      });
+    const errorMessage =
+      error.name === "AbortError"
+        ? "The response timed out. Please try again."
+        : "I could not connect to the server. Please try again.";
 
-      const data = await response.json();
+    setMessages((previous) => [
+      ...previous,
+      { role: "assistant", text: errorMessage },
+    ]);
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Something went wrong.");
-      }
-
-      setMessages((previous) => [
-        ...previous,
-        { role: "assistant", text: data.response },
-      ]);
-    } catch (error) {
-      console.error(error);
-
-      setMessages((previous) => [
-        ...previous,
-        {
-          role: "assistant",
-          text: "I could not connect to the server. Please check that the backend is running.",
-        },
-      ]);
-    } finally {
-      setLoading(false);
-    }
+  } finally {
+    clearTimeout(timeoutId);
+    setLoading(false);
   }
+}
+
 
   function chooseSuggestion(text) {
     setMessage(text);
@@ -138,14 +171,14 @@ function App() {
           <p className="section-label">WORKSPACE</p>
 
           <div className="nav-item active">
-            <span>⌂</span>
+            <span>âŒ‚</span>
             AI Chat Support
           </div>
         </div>
         <div className="sidebar-bottom">
           <div className="sidebar-profile">
             <div className="profile-icon">
-              <span>✦</span>
+              <span>âœ¦</span>
             </div>
 
             <div className="profile-info">
@@ -171,7 +204,7 @@ function App() {
             title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             aria-label="Toggle theme"
           >
-            {theme === "light" ? "☾" : "☀"}
+            {theme === "light" ? "â˜¾" : "â˜€"}
           </button>
         </header>
 
@@ -206,6 +239,30 @@ function App() {
                   </span>
 
                   <div className="message-bubble">{item.text}</div>
+                  {item.role === "assistant" && (
+                  <button
+                    type="button"
+                    className="speaker-button"
+                    onClick={() => speakResponse(item.text)}
+                    title="Listen to response"
+                    aria-label="Listen to response"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="17"
+                      height="17"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+                      <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                      <path d="M19 5a10 10 0 0 1 0 14" />
+                    </svg>
+                  </button>
+                )}
                 </div>
               </div>
             ))}
@@ -242,12 +299,12 @@ function App() {
                       chooseSuggestion("What are your business hours?")
                     }
                   >
-                    <span className="suggestion-icon">◷</span>
+                    <span className="suggestion-icon">â—·</span>
                     <span>
                       <strong>Store hours</strong>
                       <small>When are you open?</small>
                     </span>
-                    <span className="suggestion-arrow">↗</span>
+                    <span className="suggestion-arrow">â†—</span>
                   </button>
 
                   <button
@@ -258,12 +315,12 @@ function App() {
                       )
                     }
                   >
-                    <span className="suggestion-icon">↗</span>
+                    <span className="suggestion-icon">â†—</span>
                     <span>
                       <strong>Track an order</strong>
                       <small>Check delivery status</small>
                     </span>
-                    <span className="suggestion-arrow">↗</span>
+                    <span className="suggestion-arrow">â†—</span>
                   </button>
 
                   <button
@@ -272,12 +329,12 @@ function App() {
                       chooseSuggestion("Can I speak to a human agent?")
                     }
                   >
-                    <span className="suggestion-icon">♧</span>
+                    <span className="suggestion-icon">â™§</span>
                     <span>
                       <strong>Human support</strong>
                       <small>Talk to our team</small>
                     </span>
-                    <span className="suggestion-arrow">↗</span>
+                    <span className="suggestion-arrow">â†—</span>
                   </button>
                 </div>
               </div>
@@ -291,7 +348,7 @@ function App() {
                 title={listening ? "Stop listening" : "Speak your message"}
                 aria-label="Voice input"
               >
-                {listening ? "■" : "🎙"}
+                {listening ? "â– " : "ðŸŽ™"}
               </button>
 
               <input
@@ -312,12 +369,12 @@ function App() {
                 disabled={loading || !message.trim()}
               >
                 {loading ? "Sending..." : "Send"}
-                <span>↑</span>
+                <span>â†‘</span>
               </button>
             </form>
 
             <p className="disclaimer">
-              QuickCart AI Assistant · Demo environment · Sample order data
+              QuickCart AI Assistant Â· Demo environment Â· Sample order data
             </p>
           </div>
         </section>

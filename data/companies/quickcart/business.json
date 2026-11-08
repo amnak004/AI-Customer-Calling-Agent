@@ -1,13 +1,28 @@
-﻿{
-    "name":  "QuickCart",
-    "business_hours":  "Monday to Saturday, 9:00 AM to 6:00 PM",
-    "working_days":  [
-                         "Monday",
-                         "Tuesday",
-                         "Wednesday",
-                         "Thursday",
-                         "Friday",
-                         "Saturday"
-                     ],
-    "contact_email":  "support@quickcart.example"
+﻿
+{
+    "name": "QuickCart",
+    "business_hours": "Monday to Saturday, 9:00 AM to 6:00 PM",
+    "working_days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+    ],
+    "contact_email": "support@quickcart.example",
+    "sample_orders": [
+        {
+            "order_id": "QC1001",
+            "status": "Shipped"
+        },
+        {
+            "order_id": "QC1002",
+            "status": "Processing"
+        },
+        {
+            "order_id": "QC1003",
+            "status": "Delivered"
+        }
+    ]
 }

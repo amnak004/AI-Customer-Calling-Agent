@@ -24,7 +24,8 @@ GEMINI_URL = (
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-TIMEOUT = 30
+GEMINI_TIMEOUT = 30
+GROQ_TIMEOUT = 30
 
 
 def build_prompt(question, context):
@@ -70,7 +71,7 @@ def call_gemini(prompt, max_tokens, temperature):
         GEMINI_URL,
         params={"key": GEMINI_API_KEY},
         json=payload,
-        timeout=TIMEOUT
+        timeout=GEMINI_TIMEOUT
     )
     response.raise_for_status()
 
@@ -114,7 +115,7 @@ def call_groq(prompt, max_tokens, temperature):
             "Content-Type": "application/json"
         },
         json=payload,
-        timeout=TIMEOUT
+        timeout=GROQ_TIMEOUT
     )
     response.raise_for_status()
 
@@ -131,19 +132,34 @@ def call_groq(prompt, max_tokens, temperature):
     }
 
 
+
+
 def generate_response(question, context, ai_settings=None):
     settings = ai_settings or {}
 
     max_tokens = settings.get("max_output_tokens", 250)
     temperature = settings.get("temperature", 0.2)
 
-    prompt = build_prompt(question, context)
+    primary = settings.get("primary_provider", "gemini").lower()
+    secondary = settings.get("secondary_provider", "groq").lower()
+
+    provider_functions = {
+        "gemini": ("Gemini", call_gemini),
+        "groq": ("Groq", call_groq)
+    }
+
+    if primary not in provider_functions or secondary not in provider_functions:
+        raise ValueError("Invalid AI provider configuration.")
+
+    if primary == secondary:
+        raise ValueError("Primary and secondary providers must be different.")
 
     providers = [
-        ("Gemini", call_gemini),
-        ("Groq", call_groq)
+        provider_functions[primary],
+        provider_functions[secondary]
     ]
 
+    prompt = build_prompt(question, context)
     errors = []
 
     for provider_name, provider_function in providers:
@@ -155,9 +171,10 @@ def generate_response(question, context, ai_settings=None):
 
             except httpx.HTTPStatusError as error:
                 if provider_name == "Gemini" and error.response.status_code == 503:
-                    print("Gemini is busy. Retrying in 2 seconds...")
+                    print("Gemini is busy. Retrying once in 2 seconds...")
                     time.sleep(2)
 
+                    # Retry failure will now reach the outer exception handler.
                     result = provider_function(
                         prompt, max_tokens, temperature
                     )
@@ -169,7 +186,6 @@ def generate_response(question, context, ai_settings=None):
 
         except httpx.HTTPStatusError as error:
             status = error.response.status_code
-
             errors.append(f"{provider_name}: HTTP {status}")
 
             print(f"{provider_name} HTTP error: {status}")

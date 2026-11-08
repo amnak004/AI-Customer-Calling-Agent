@@ -5,7 +5,14 @@ from datetime import datetime, timezone
 
 BASE_DIR = Path(__file__).resolve().parents[2]
 DB_DIR = BASE_DIR / "data" / "database"
-DB_FILE = DB_DIR / "quickcart.db"
+CONFIG_FILE = BASE_DIR / "backend" / "config" / "company.json"
+
+import json
+
+with CONFIG_FILE.open("r", encoding="utf-8-sig") as file:
+    COMPANY_CONFIG = json.load(file)
+
+DB_FILE = DB_DIR / f"{COMPANY_CONFIG['company_id']}.db"
 
 
 def get_connection():

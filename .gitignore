@@ -23,3 +23,16 @@ dist/
 Thumbs.db
 # Local databases
 *.db
+
+# Deployment hygiene
+*.bak
+*_backup.py
+docx_test.docx
+pdf_test.docx
+pdf_test.pdf
+test.pdf
+test_upload.txt
+
+# Keep safe environment templates in Git
+!.env.example
+!**/.env.example
