@@ -1,4 +1,4 @@
-﻿import { API_BASE_URL } from "./config";
+import { API_BASE_URL } from "./config";
 import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
@@ -171,14 +171,14 @@ async function sendMessage(event) {
           <p className="section-label">WORKSPACE</p>
 
           <div className="nav-item active">
-            <span>âŒ‚</span>
+            <span>▣</span>
             AI Chat Support
           </div>
         </div>
         <div className="sidebar-bottom">
           <div className="sidebar-profile">
             <div className="profile-icon">
-              <span>âœ¦</span>
+              <span>✦</span>
             </div>
 
             <div className="profile-info">
@@ -204,7 +204,7 @@ async function sendMessage(event) {
             title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
             aria-label="Toggle theme"
           >
-            {theme === "light" ? "â˜¾" : "â˜€"}
+            {theme === "light" ? "☾" : "☀"}
           </button>
         </header>
 
@@ -299,12 +299,12 @@ async function sendMessage(event) {
                       chooseSuggestion("What are your business hours?")
                     }
                   >
-                    <span className="suggestion-icon">â—·</span>
+                    <span className="suggestion-icon">◷</span>
                     <span>
                       <strong>Store hours</strong>
                       <small>When are you open?</small>
                     </span>
-                    <span className="suggestion-arrow">â†—</span>
+                    <span className="suggestion-arrow">↗</span>
                   </button>
 
                   <button
@@ -329,7 +329,7 @@ async function sendMessage(event) {
                       chooseSuggestion("Can I speak to a human agent?")
                     }
                   >
-                    <span className="suggestion-icon">â™§</span>
+                    <span className="suggestion-icon">♧</span>
                     <span>
                       <strong>Human support</strong>
                       <small>Talk to our team</small>
@@ -348,7 +348,7 @@ async function sendMessage(event) {
                 title={listening ? "Stop listening" : "Speak your message"}
                 aria-label="Voice input"
               >
-                {listening ? "â– " : "ðŸŽ™"}
+                {listening ? "■ " : "🎙"}
               </button>
 
               <input
@@ -369,12 +369,12 @@ async function sendMessage(event) {
                 disabled={loading || !message.trim()}
               >
                 {loading ? "Sending..." : "Send"}
-                <span>â†‘</span>
+                <span>↑</span>
               </button>
             </form>
 
             <p className="disclaimer">
-              QuickCart AI Assistant Â· Demo environment Â· Sample order data
+              QuickCart AI Assistant · Demo environment · Sample order data
             </p>
           </div>
         </section>
