@@ -315,12 +315,12 @@ async function sendMessage(event) {
                       )
                     }
                   >
-                    <span className="suggestion-icon">â†—</span>
+                    <span className="suggestion-icon">↗</span>
                     <span>
                       <strong>Track an order</strong>
                       <small>Check delivery status</small>
                     </span>
-                    <span className="suggestion-arrow">â†—</span>
+                    <span className="suggestion-arrow">↗</span>
                   </button>
 
                   <button
@@ -334,7 +334,7 @@ async function sendMessage(event) {
                       <strong>Human support</strong>
                       <small>Talk to our team</small>
                     </span>
-                    <span className="suggestion-arrow">â†—</span>
+                    <span className="suggestion-arrow">↗</span>
                   </button>
                 </div>
               </div>
