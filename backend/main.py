@@ -252,14 +252,26 @@ def detect_intent(message: str) -> str:
 
     # 1. Human-agent requests
     human_phrases = [
-        "human agent", "real person",
-        "speak to someone", "talk to someone",
-        "speak to a human", "talk to a human",
+        "human agent",
+        "human assistance",
+        "human support",
+        "request human",
+        "requesting human",
+        "provide human assistance",
+        "need human assistance",
+        "need a human",
+        "real person",
+        "speak to someone",
+        "talk to someone",
+        "speak to a human",
+        "talk to a human",
         "connect me to an agent",
         "transfer me to an agent",
         "talk to a representative",
         "speak to a representative",
-        "live agent"
+        "live agent",
+        "customer representative",
+        "customer support agent"
     ]
 
     if any(term in text for term in human_phrases):
@@ -325,6 +337,23 @@ def get_response(message: str):
             ),
             "source": "rule_based"
         }
+
+        # Small talk
+    small_talk = {
+        "how are you": "I'm doing well! Thanks for asking. How can I help you with QuickCart?",
+        "how are you doing": "I'm doing great! How can I assist you today?",
+        "what are you doing": "I'm here to help QuickCart customers with orders and store information.",
+        "who are you": "I'm QuickCart's AI customer support assistant.",
+        "what can you do": "I can help with business hours, order status, and human assistance."
+    }
+
+    if text in small_talk:
+        return {
+            "intent": "general_faq",
+            "response": small_talk[text],
+            "source": "rule_based"
+    }
+
 
     if text in {"thanks", "thank you", "thank you so much"}:
         return {
