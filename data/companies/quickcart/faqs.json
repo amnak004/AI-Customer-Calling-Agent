@@ -48,5 +48,10 @@
         "question":  "Do you provide support on Sundays?",
         "answer":  "Our regular business hours do not include Sunday.",
         "intent":  "business_hours"
+    },
+    {
+        "question":  "Return policy. What is your return policy? Can I return my order? How many days do I have to return a product? When will I receive my refund?",
+        "answer":  "Customers can return products within 7 days of delivery. To request a return, contact QuickCart support and provide your order ID. After the return is approved, refunds are processed within 5 business days.",
+        "intent":  "general_faq"
     }
 ]
