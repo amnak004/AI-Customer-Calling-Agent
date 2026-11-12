@@ -8,7 +8,6 @@ The system uses a React frontend and FastAPI backend to handle customer queries,
 
 - **Frontend:** https://ai-customer-calling-agent-ten.vercel.app
 - **Backend API:** https://fvqj313t-fastapi-quickcart-ai-backend.apps-2.websson.cloud
-- **GitHub:** https://github.com/amnak004/AI-Customer-Calling-Agent
 
 ## Features
 
